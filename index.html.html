@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aion 2 - Strategická Encyklopedie a Velitelská Příručka</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fbf9f5;
+            color: #1e293b;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 650px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 360px;
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1efe9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .tab-active {
+            border-bottom: 3px solid #d97706;
+            color: #b45309;
+            font-weight: 700;
+            background-color: #fef3c7;
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-100 selection:text-amber-900">
+
+<!-- Chosen Palette: Warm Sand & Slate Modern (Background: #fbf9f5, Cards: #ffffff, Text: #1e293b, Accents: Amber #d97706, Indigo #4f46e5, Emerald #059669) -->
+<!-- Application Structure Plan: Streamlined 7-tab single-page interactive guide with precise server event countdowns anchored to Questlog.gg UTC schedules, verified Odyle mechanics, PvE/PvP breakdowns, crafting and Arcana interactive cards, stats calculator, and interactive map viewport. -->
+<!-- Visualization & Content Choices: Event timers aligned to questlog.gg schedule (Daily reset 18:00 UTC, Weekly Wednesday 18:00 UTC, Shugo 2h cycle on odd UTC hours, Watcher Kaira 4h cycle, Rift 4h cycle). Interactive Arcana viewer, Chart.js animation frame graph. NO SVG, NO Mermaid JS. -->
+<!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+<header class="sticky top-0 z-50 bg-slate-900 text-slate-100 shadow-lg border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 py-2.5">
+        <div class="flex flex-col lg:flex-row items-center justify-between gap-3 text-xs md:text-sm">
+            <div class="flex items-center gap-2 font-bold tracking-wide text-amber-400">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                AION 2 COMMAND CENTER
+            </div>
+            
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 w-full lg:w-auto font-mono text-center">
+                <div class="bg-slate-800/90 px-2.5 py-1 rounded border border-slate-700">
+                    <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider">Daily Reset</div>
+                    <div id="timer-daily" class="font-semibold text-emerald-400">0h 0m</div>
+                </div>
+                <div class="bg-slate-800/90 px-2.5 py-1 rounded border border-slate-700">
+                    <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider">Weekly Reset</div>
+                    <div id="timer-weekly" class="font-semibold text-amber-400">0d 0h</div>
+                </div>
+                <div class="bg-slate-800/90 px-2.5 py-1 rounded border border-slate-700">
+                    <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider">Shugo Fest</div>
+                    <div id="timer-shugo" class="font-semibold text-sky-400">0m</div>
+                </div>
+                <div class="bg-slate-800/90 px-2.5 py-1 rounded border border-slate-700">
+                    <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider">Watcher Kaira</div>
+                    <div id="timer-kaira" class="font-semibold text-rose-400">0h 0m</div>
+                </div>
+                <div class="bg-slate-800/90 px-2.5 py-1 rounded border border-slate-700">
+                    <div class="text-[10px] text-slate-400 font-sans uppercase tracking-wider">Rift Event</div>
+                    <div id="timer-rift" class="font-semibold text-indigo-400">0h 0m</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<div class="max-w-7xl mx-auto px-4 py-6 flex-grow">
+
+    <nav class="flex overflow-x-auto border-b border-slate-300 gap-1 md:gap-2 mb-8 no-scrollbar bg-white p-2 rounded-xl shadow-sm">
+        <button onclick="switchTab('intro')" id="tab-btn-intro" class="nav-btn px-3.5 py-2 text-xs md:text-sm font-medium rounded-lg text-slate-600 hover:text-amber-800 whitespace-nowrap transition-all tab-active">
+            🏠 Úvod
+        </button>
+        <button onclick="switchTab('odyle')" id="tab-btn-odyle" class="nav-btn px-3.5 py-2 text-xs md:text-sm font-medium rounded-lg text-slate-600 hover:text-amber-800 whitespace-nowrap transition-all">
+            🧪 Odyle systém
+        </button>
+        <button onclick="switchTab('pve')" id="tab-btn-pve" class="nav-btn px-3.5 py-2 text-xs md:text-sm font-medium rounded-lg text-slate-600 hover:text-amber-800 whitespace-nowrap transition-all">
+            ⚔️ PvE kontent
+        </button>
+        <button onclick="switchTab('pvp')" id="tab-btn-pvp" class="nav-btn px-3.5 py-2 text-xs md:text-sm font-medium rounded-lg text-slate-600 hover:text-amber-800 whitespace-nowrap transition-all">
+            🛡️ PvP kontent
+        </button>
+        <button onclick="switchTab('other')" id="tab-btn-other" class="nav-btn px-3.5 py-2 text-xs md:text-sm font-medium rounded-lg text-slate-600 hover:text-amber-800 whitespace-nowrap transition-all">
+            🛠️ Ostatní kontent
+        </button>
+        <button onclick="switchTab('stats')" id="tab-btn-stats" class="nav-btn px-3.5 py-2 text-xs md:text-sm font-medium rounded-lg text-slate-600 hover:text-amber-800 whitespace-nowrap transition-all">
+            📊 Stats & Breakpointy
+        </button>
+        <button onclick="switchTab('map')" id="tab-btn-map" class="nav-btn px-3.5 py-2 text-xs md:text-sm font-medium rounded-lg text-slate-600 hover:text-amber-800 whitespace-nowrap transition-all">
+            🗺️ Interaktivní mapa
+        </button>
+    </nav>
+
+    <section id="section-intro" class="tab-content block space-y-8">
+        <div class="bg-gradient-to-r from-amber-900 via-slate-900 to-slate-900 text-white rounded-2xl p-6 md:p-8 shadow-xl">
+            <h1 class="text-2xl md:text-4xl font-black tracking-tight mb-3">
+                AION 2 – STRATEGICKÁ ENCYKLOPEDIE & VELITELSKÁ PŘÍRUČKA
+            </h1>
+            <p class="text-amber-200/90 text-sm md:text-base max-w-3xl leading-relaxed mb-4">
+                Ucelený a ověřený průvodce pro Aion 2 se zachováním oficiální in-game terminologie. Tento portál slouží k maximalizaci efektivity progrese vaší postavy, pochopení klíčových dvoupilířových systémů (Odyle Energy a Odil Suroviny), správě denních i týdenních rutin a přesné optimalizaci bojových statistik.
+            </p>
+            <div class="flex flex-wrap gap-2 text-xs">
+                <span class="bg-amber-500/20 border border-amber-500/40 px-3 py-1 rounded-full text-amber-300 font-medium">Unreal Engine 5 Engine</span>
+                <span class="bg-emerald-500/20 border border-emerald-500/40 px-3 py-1 rounded-full text-emerald-300 font-medium">Questlog.gg Synchronizovaný Časovač</span>
+                <span class="bg-indigo-500/20 border border-indigo-500/40 px-3 py-1 rounded-full text-indigo-300 font-medium">PC PURPLE / Cross-Play</span>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-bold text-slate-900 mb-2">🚀 Rychlý Přehled a Navigace Obsahem</h2>
+            <p class="text-slate-600 text-sm mb-6">
+                Kliknutím na kteroukoli kartu se okamžitě přesunete do detailního rozboru vybrané kapitoly.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <div onclick="switchTab('odyle')" class="cursor-pointer bg-white p-5 rounded-xl border border-emerald-200 shadow-sm hover:shadow-md hover:border-emerald-500 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">🧪</span>
+                        <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full">Revidovaný Systém</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg group-hover:text-emerald-700 transition-colors mb-2">Odyle systém</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Dvoupilířový systém: Odyle Energy (stamina pro 100% zisk odměn a EXP z dungeonů) a Odil Suroviny (těžební uzly pro Alchemy a Substance Morphing).
+                    </p>
+                    <div class="text-xs font-semibold text-emerald-600 flex items-center gap-1">
+                        Otevřít Odyle Průvodce &rarr;
+                    </div>
+                </div>
+
+                <div onclick="switchTab('pve')" class="cursor-pointer bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">⚔️</span>
+                        <span class="text-xs font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full">9 Herních Módů</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg group-hover:text-amber-700 transition-colors mb-2">PvE kontent</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Expedice (Exploration & Conquest), Daily Dungeony, Nightmare, Shugo Festival, Supply Requests, Sanctuary Raidy, Transcendence, Duty a Command Quests.
+                    </p>
+                    <div class="text-xs font-semibold text-amber-600 flex items-center gap-1">
+                        Otevřít PvE Průvodce &rarr;
+                    </div>
+                </div>
+
+                <div onclick="switchTab('pvp')" class="cursor-pointer bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">🛡️</span>
+                        <span class="text-xs font-bold text-rose-700 bg-rose-50 px-2.5 py-1 rounded-full">6 Okruhů</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg group-hover:text-amber-700 transition-colors mb-2">PvP kontent</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Abyss Open World, Battlefield bojiště, Arény s Equalized Stats, Abyss Command Quests, bitvy o World Bosse a Pevnostní války.
+                    </p>
+                    <div class="text-xs font-semibold text-amber-600 flex items-center gap-1">
+                        Otevřít PvP Průvodce &rarr;
+                    </div>
+                </div>
+
+                <div onclick="switchTab('other')" class="cursor-pointer bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">🛠️</span>
+                        <span class="text-xs font-bold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-full">8 Systémů</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg group-hover:text-amber-700 transition-colors mb-2">Ostatní kontent</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Substance Morph, Crafting & Gathering, Enhancement, Transfer Crafting, Wings & Glide Canceling, Pets, Arcana karty a Šatník (Closet).
+                    </p>
+                    <div class="text-xs font-semibold text-amber-600 flex items-center gap-1">
+                        Otevřít Systémy & Crafting &rarr;
+                    </div>
+                </div>
+
+                <div onclick="switchTab('stats')" class="cursor-pointer bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all group">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">📊</span>
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">Kompletní Databáze</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg group-hover:text-amber-700 transition-colors mb-2">Stats & Breakpointy</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Detailní rozpis Might, Precision, Dexterity, Intelligence, Willpower, Constitution, Božské statistiky, Hit Detection a graf Frame Breakpointů.
+                    </p>
+                    <div class="text-xs font-semibold text-amber-600 flex items-center gap-1">
+                        Prohlížet Statistiky &rarr;
+                    </div>
+                </div>
+
+                <div onclick="switchTab('map')" class="cursor-pointer bg-white p-5 rounded-xl border border-slate-200 shadow-sm hover:shadow-md hover:border-amber-400 transition-all group col-span-1 md:col-span-2 lg:col-span-1">
+                    <div class="flex items-center justify-between mb-3">
+                        <span class="text-2xl">🗺️</span>
+                        <span class="text-xs font-bold text-sky-700 bg-sky-50 px-2.5 py-1 rounded-full">World_L_A Zóna</span>
+                    </div>
+                    <h3 class="font-bold text-slate-900 text-lg group-hover:text-amber-700 transition-colors mb-2">Interaktivní Mapa Světa</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                        Interaktivní mapa zóny World_L_A s vyhledáváním těžařských uzlů (Odil nodes), skrytých kostek (Hidden Cubes), bossů a vstupů do dungeonů.
+                    </p>
+                    <div class="text-xs font-semibold text-amber-600 flex items-center gap-1">
+                        Spustit Mapu &rarr;
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-xl">☀️</span>
+                    <h3 class="text-lg font-bold text-slate-900">Denní Rutina (Daily Activities)</h3>
+                </div>
+                <p class="text-slate-600 text-xs mb-4">Přehled povinných denních aktivit s garantovaným resetem v 18:00 UTC.</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700">
+                                <th class="p-2.5 font-semibold">Aktivita</th>
+                                <th class="p-2.5 font-semibold">Reset / Limity</th>
+                                <th class="p-2.5 font-semibold">Odměna & Význam pro Postavu</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Duty Quests (Denní Povinnosti)</td>
+                                <td class="p-2.5 font-mono text-emerald-700">Reset 18:00 UTC</td>
+                                <td class="p-2.5">Stěžejní zdroj Odyle Energy, Kinah, EXP a Activity Points.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Daily Dungeon (Pet Focus)</td>
+                                <td class="p-2.5 font-mono text-emerald-700">Reset 18:00 UTC</td>
+                                <td class="p-2.5">Pet Souls pro úroveň Genus Insight (trvalé staty účtu).</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Správa Odyle Energy v Expedicích</td>
+                                <td class="p-2.5 font-mono text-emerald-700">Průběžná regenerace</td>
+                                <td class="p-2.5">Spotřeba energie v dungeonech zaručuje 100% EXP a plný výnos dropů.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Supply Requests (5/5 turn-inů)</td>
+                                <td class="p-2.5 font-mono text-emerald-700">Reset 18:00 UTC</td>
+                                <td class="p-2.5">Cube Keys (klíče k Hidden Cubes v mapě) a Crafting tokeny z re-rollů.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Shugo Festival Event</td>
+                                <td class="p-2.5 font-mono text-emerald-700">Cyklus 2 hodiny</td>
+                                <td class="p-2.5">Shugo Tokens, Daevanion Krystaly a Pantheon Art do sbírek.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Watcher Kaira World Boss</td>
+                                <td class="p-2.5 font-mono text-emerald-700">Cyklus 4 hodiny</td>
+                                <td class="p-2.5">Zlaté zbraně, Draconic materiály a vzácné esence.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Daily Free Shop & Attendance</td>
+                                <td class="p-2.5 font-mono text-emerald-700">1x Denně</td>
+                                <td class="p-2.5">Bezplatný odměnový balíček v obchodě včetně Odyle elixírů zdarma.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="text-xl">🗓️</span>
+                    <h3 class="text-lg font-bold text-slate-900">Týdenní Rutina (Weekly Activities)</h3>
+                </div>
+                <p class="text-slate-600 text-xs mb-4">Přehled aktivit s týdenním limitovaným přísunem odměn (Reset ve středu v 18:00 UTC).</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-700">
+                                <th class="p-2.5 font-semibold">Aktivita</th>
+                                <th class="p-2.5 font-semibold">Limit / Reset</th>
+                                <th class="p-2.5 font-semibold">Odměna & Význam pro Postavu</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Command Quests (Svitky)</td>
+                                <td class="p-2.5 font-mono text-amber-700">Max 14 / Týden</td>
+                                <td class="p-2.5">Maximalizovaný přísun Kinah, Odyle materiálů a crafting surovin.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Nightmare Runy (Noční Můry)</td>
+                                <td class="p-2.5 font-mono text-amber-700">Středa 18:00 UTC</td>
+                                <td class="p-2.5">Phantasmal Fragments pro nákup dodatečných Skill Pointů.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Sanctuary Raidy (10-man)</td>
+                                <td class="p-2.5 font-mono text-amber-700">Týdenní ID reset</td>
+                                <td class="p-2.5">Abyssal Forge (Ludra) – zisk nejvyšší kvality Draconic výbavy.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Battlefield Týdenní Zápasy</td>
+                                <td class="p-2.5 font-mono text-amber-700">Středa 18:00 UTC</td>
+                                <td class="p-2.5">Honor Points, žebříčkové odměny a PvP Gear Truhly.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Abyss Fortress Wars</td>
+                                <td class="p-2.5 font-mono text-amber-700">Dle server kalendáře</td>
+                                <td class="p-2.5">Masivní bitvy o Pevnosti, frakční serverové buffy a Castle příjmy.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-semibold text-slate-900">Guild Quests & Donates</td>
+                                <td class="p-2.5 font-mono text-amber-700">Týdenní cyklus</td>
+                                <td class="p-2.5">Guild Coins pro nákup v guildovním obchodu a úroveň cechu.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-odyle" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-xl p-6 border border-emerald-200 shadow-sm">
+            <div class="flex items-center gap-3 mb-2">
+                <span class="text-3xl">🧪</span>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Odyle Energy & Odil Surovinový Systém</h2>
+                    <p class="text-xs text-emerald-800 font-semibold uppercase tracking-wider">Kompletně revidovaný a ověřený rozbor mechanik v Aion 2</p>
+                </div>
+            </div>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                Systém <strong>Odyle</strong> v Aion 2 funguje na <strong>dvou samostatných, navzájem se doplňujících pilířích</strong>. Prvním je <strong>Odyle Energy</strong> (stamina určující výnos z dungeonů a lovu), druhým jsou <strong>Odil Suroviny</strong> (fyzické krystaly těžené v otevřeném světě pro transmutační Substance Morphing a alchymii). Pochopení obou složek je klíčové pro plynulý rozvoj postavy bez zbytečných prodlev.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="bg-emerald-50/60 p-5 rounded-xl border border-emerald-200">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-xl">⚡</span>
+                        <h3 class="font-bold text-emerald-950 text-base">1. Odyle Energy (Loot & EXP Stamina)</h3>
+                    </div>
+                    <ul class="text-xs text-slate-700 space-y-2.5 list-disc list-inside leading-relaxed">
+                        <li><strong>Nárokování Plných Odměn:</strong> Spotřebovává se při nárokování odměn z truhly po dokončení <strong>Expedic (Exploration & Conquest)</strong>. Zajišťuje získání plné tabulky loot dropů (zbraně, zbroje, Enhancement Stones).</li>
+                        <li><strong>100% Zisk EXP a Kinah:</strong> Při aktivní energií získáváte plný násobič zkušeností a měny. Při vyčerpání energie se drop rate i EXP výnos razantně snižují.</li>
+                        <li><strong>Kapacita (Energy Pool):</strong> Postava má stanovený strop maximální kapacity. Efektivní hráč udržuje stav pod hranicí stropu, aby nedocházelo ke ztrátám z pasivní regenerace.</li>
+                    </ul>
+                </div>
+
+                <div class="bg-amber-50/60 p-5 rounded-xl border border-amber-200">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-xl">💎</span>
+                        <h3 class="font-bold text-amber-950 text-base">2. Odil Suroviny (Těžební Uzly & Morphing)</h3>
+                    </div>
+                    <ul class="text-xs text-slate-700 space-y-2.5 list-disc list-inside leading-relaxed">
+                        <li><strong>Surovinové Uzly (Odil Nodes):</strong> Těží se v kontestovaných zónách a v Abyssu pomocí dovednosti Essence Extraction.</li>
+                        <li><strong>Substance Morphing:</strong> Zpracované krystaly Odil slouží jako reakční palivo pro přetavování surovin a bezpečnou vylepšovací progrese bižuterie.</li>
+                        <li><strong>Alchymie (Energy Potions):</strong> Hráči-alchymisté využívají nasbírané suroviny k výrobě elixírů, které dočasně doplňují aktivní stav Odyle Energy.</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-slate-900 mb-4">🛒 Ověřené Zdroje Získávání Odyle Energy & Surovin</h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-8">
+                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 transition-all shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-lg">⛏️</span>
+                        <h4 class="font-bold text-slate-900 text-sm">1. Těžba Uzlů & Alchymie</h4>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Těžba Odil uzlů v otevřeném světě a Abyssu. Následné zpracování přes alchymii generuje doplňovací elixíry (Odyle Potions) i materiál pro crafting.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 transition-all shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-lg">📜</span>
+                        <h4 class="font-bold text-slate-900 text-sm">2. Duty Quests (Denní Povinnosti)</h4>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Plnění denních strukturovaných úkolů odměňuje hráče garantovaným balíkem Odyle Energy a denní dávkou odměnových truhlic.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 transition-all shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-lg">📑</span>
+                        <h4 class="font-bold text-slate-900 text-sm">3. Command Quests (Svitky)</h4>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Svitkové mise vyšších stupňů nabízejí Odyle esence a nápoje v odměnových tabulkách za vyčištění zadané lokace.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 transition-all shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-lg">💎</span>
+                        <h4 class="font-bold text-slate-900 text-sm">4. Shop Free Claim & Battle Pass</h4>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Bezplatný denní balíček v herním obchodě (Daily Free Claim), odměny za postup v Battle Passu a sezónní balíčky.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 transition-all shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-lg">⏳</span>
+                        <h4 class="font-bold text-slate-900 text-sm">5. Pasivní Regenerace v Čase</h4>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Odyle Energy se průběžně a automaticky regeneruje v reálném čase až do dosažení maximálního přirozeného stropu postavy.
+                    </p>
+                </div>
+
+                <div class="p-4 rounded-xl border border-slate-200 bg-white hover:border-emerald-400 transition-all shadow-sm">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-lg">🎁</span>
+                        <h4 class="font-bold text-slate-900 text-sm">6. Eventy & Kalendářní Přihlášení</h4>
+                    </div>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Pravidelný docházkový kalendář (Attendance), časově omezené sváteční akce (Shugo Fest, Rift Events) a achievementy.
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 text-slate-100 p-5 rounded-xl border border-slate-800">
+                <h4 class="text-amber-400 font-bold text-sm mb-2 flex items-center gap-2">
+                    💡 Doporučená Strategie Správy Odyle pro Velitele
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-300 leading-relaxed">
+                    <div>
+                        <strong class="text-white block mb-1">1. Šetřete na Conquest Expedice:</strong>
+                        Neaplikujte cenné elixíry Odyle na nejnižší úrovně dungeonů. Vyčkejte na vyšší stupně (Conquest), kde padají Unbound zbraně a cenné vylepšovací materiály.
+                    </div>
+                    <div>
+                        <strong class="text-white block mb-1">2. Kombinujte Těžbu v Abyssu:</strong>
+                        Při plnění týdenních úkolů v Abyssu vždy těžte dostupné Odil uzly. Získáte tím suroviny pro Substance Morph i alchymistické elixíry zdarma.
+                    </div>
+                    <div>
+                        <strong class="text-white block mb-1">3. Předcházejte Přetékání Stropu:</strong>
+                        Před odpojením ze hry spotřebujte energii v dungeonech tak, aby se během vaší nepřítomnosti mohla plně regenerovat až do stropu.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-pve" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">⚔️ Kompletní Průvodce PvE Obsahem</h2>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                Přehled všech 9 hlavních PvE herních módů v Aion 2 včetně ověřených herních termínů a odměn.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="p-5 rounded-xl border border-slate-200 bg-amber-50/40">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-amber-900 text-base">🏰 Expedice (Exploration & Conquest)</h3>
+                        <span class="text-[10px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded">Core PvE</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Skupinové dungeony pro 5 hráčů (Tank, Healer, 3x DPS). Režim <em>Exploration</em> poskytuje vázanou výbavu a Bound Kinah vhodné pro trénink mechanik bossů. Náročnější <em>Conquest</em> vyžaduje vyšší Gear Score, spotřebovává Odyle Energy pro plné nárokování odměn a odměňuje vzácnou Unbound Kinah pro prodej na trhu.
+                    </p>
+                    <p class="text-xs font-semibold text-amber-950 bg-amber-100 p-2 rounded">
+                        🎁 Odměny: Rare / Heroic / Legendary Gear, Bound & Unbound Kinah, Enhancement Stones, Crafting materiály.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">📅 Daily Dungeon</h3>
+                        <span class="text-[10px] font-bold bg-slate-200 text-slate-800 px-2 py-0.5 rounded">Denní Reset</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Dungeony s denním vstupním limitem zaměřené na klíčové růstové suroviny. Zásadní variantou je zóna určená pro <em>Pet Souls</em>, které slouží ke krmení zvířat a přímému budování Genus Insight (trvalých pasivních statistik účtu).
+                    </p>
+                    <p class="text-xs font-semibold text-slate-800 bg-slate-200/80 p-2 rounded">
+                        🎁 Odměny: Pet Souls, EXP Shards, Kinah, Skill Book Pages.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">🌙 Nightmare (Noční Můry)</h3>
+                        <span class="text-[10px] font-bold bg-purple-100 text-purple-800 px-2 py-0.5 rounded">Týdenní Reset</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Náročné týdenní boss výzvy s modifikovanými fázemi a novými AoE mechanikami. Testuje maximální DPS rotaci a časování dodgování. Každý úspěšný průchod generuje exkluzivní týdenní fragmenty.
+                    </p>
+                    <p class="text-xs font-semibold text-purple-900 bg-purple-50 p-2 rounded">
+                        🎁 Odměny: Phantasmal Fragments (exkluzivní měna pro nákup dodatečných Skill Pointů v obchodu).
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">🎪 Shugo Festival</h3>
+                        <span class="text-[10px] font-bold bg-sky-100 text-sky-800 px-2 py-0.5 rounded">Cyklus 2h</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Časově omezené minihry a komunitní události probíhající v pravidelném dvouhodinovém intervalu. Nevyžaduje špičkový gear a umožňuje všem hráčům získat vzácné sběratelské předměty.
+                    </p>
+                    <p class="text-xs font-semibold text-sky-900 bg-sky-50 p-2 rounded">
+                        🎁 Odměny: Shugo Tokens, Daevanion Krystaly, Pantheon Art, Kosmetické doplňky.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">📦 Supply Request</h3>
+                        <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">5/5 Denně</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Zásobovací zakázky vyžadující odevzdání nasbíraných surovin či crafted předmětů. Pomocí re-rollů točíte nabídku tak, aby na levé pozici padly klíče k truhlicím.
+                    </p>
+                    <p class="text-xs font-semibold text-emerald-900 bg-emerald-50 p-2 rounded">
+                        🎁 Odměny: Cube Keys (klíče na otevírání Hidden Cubes v mapě), Crafting Tokeny.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-amber-50/40">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-amber-900 text-base">🐉 Sanctuary (10-man Raidy)</h3>
+                        <span class="text-[10px] font-bold bg-amber-200 text-amber-900 px-2 py-0.5 rounded">Endgame Raid</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Vrcholný endgame raid pro alianci 10 hráčů (např. Abyssal Forge s bossem Ludra). Vyžaduje precizní rotaci tanků, časování healu a zvládání wipe mechanik.
+                    </p>
+                    <p class="text-xs font-semibold text-amber-950 bg-amber-100 p-2 rounded">
+                        🎁 Odměny: Draconic Výbava nejvyšší kvality, Soulbind materiály, Ascension doplňky.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">✨ Transcendence</h3>
+                        <span class="text-[10px] font-bold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">Zdroj Arcana Karet</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Doplňkový systém výzev zaměřený na arénové souboje s vlnami nepřítele za účelem získávání karet Arcana a surovin pro reroll statů.
+                    </p>
+                    <p class="text-xs font-semibold text-indigo-900 bg-indigo-50 p-2 rounded">
+                        🎁 Odměny: Arcana karty (Klíčový zdroj!), Transcendence Essences, Stat Reroll Stones.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-emerald-200 bg-emerald-50/20">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-emerald-950 text-base">📜 Duty Quests (Denní Povinnosti)</h3>
+                        <span class="text-[10px] font-bold bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded">Denní Systém</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Denní strukturovaný systém plnění herních povinností a aktivního hraní. Slouží jako stěžejní denní zdroj Odyle Energy, měny Kinah a zkušeností.
+                    </p>
+                    <p class="text-xs font-semibold text-emerald-900 bg-emerald-100 p-2 rounded">
+                        🎁 Odměny: Odyle Energy, Kinah, EXP, Activity Points, Crafting materiály.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">📜 Command Quests (Scrolls)</h3>
+                        <span class="text-[10px] font-bold bg-slate-200 text-slate-800 px-2 py-0.5 rounded">Limit 14/Týden</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Svitkové mise s týdenním limitováním na 14 svitků. Vybírejte svitky nejvyššího Tieru pro maximální přísun měny Kinah a Odyle surovin.
+                    </p>
+                    <p class="text-xs font-semibold text-slate-800 bg-slate-200/80 p-2 rounded">
+                        🎁 Odměny: Vysoké množství Kinah, Odyle materiály, Reagencie, Enhancement Stones.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-pvp" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">🛡️ Kompletní Průvodce PvP Obsahem</h2>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                PvP aktivity v Aion 2 odměňují hráče měnou <strong>Abyss Points (AP)</strong>, Honor Points a unikátními frakčními tituly.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="p-5 rounded-xl border border-rose-200 bg-rose-50/30">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-rose-950 text-base">🌌 Abyss Region (Open World PvPvE)</h3>
+                        <span class="text-[10px] font-bold bg-rose-200 text-rose-900 px-2 py-0.5 rounded">Od Levelu 45</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Otevřená nebezpečná zóna s neustálým PvP rizikem. Souboje o kontrolu nad těžebními uzly (Odil Nodes) a elitními monstry.
+                    </p>
+                    <p class="text-xs font-semibold text-rose-900 bg-rose-100 p-2 rounded">
+                        🎁 Odměny: Abyss Points (AP), Unbound Enhancement Stones, Soul Crystals, Frakční hodnosti.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">⚔️ Battlefield (Bojiště)</h3>
+                        <span class="text-[10px] font-bold bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded">Instancované PvP</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Organizačně řízená instancovaná bojiště pro týmy o desítkách hráčů. Boje o zabírání bodů a ničení struktur pod vedením velitelů.
+                    </p>
+                    <p class="text-xs font-semibold text-indigo-900 bg-indigo-50 p-2 rounded">
+                        🎁 Odměny: Battlefield Insignia, Honor Points, PvP Gear Chests.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">🥊 1vs1 / 5vs5 Arény</h3>
+                        <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">Equalized Stats</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Arény se systémem <strong>Equalized Stats</strong> (vyrovnané statistiky výbavy). O vítězství rozhoduje reakční doba, časování <em>Glide Canceling</em> a kontrola Crowd Control (CC) efektů.
+                    </p>
+                    <p class="text-xs font-semibold text-emerald-900 bg-emerald-50 p-2 rounded">
+                        🎁 Odměny: Sezónní PvP Hodnosti, Exkluzivní PvP Tituly, Kosmetické Aury.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">📜 Command Quests v Abyssu</h3>
+                        <span class="text-[10px] font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">High Risk / High Reward</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Svitkové mise plněné přímo v nekrytých oblasti Abyssu. Vysoké riziko přepadnutí vyvážené výrazně vyššími odměnami.
+                    </p>
+                    <p class="text-xs font-semibold text-amber-900 bg-amber-50 p-2 rounded">
+                        🎁 Odměny: Násobky AP, Mana Stones, Vzácné crafting ingredience.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-slate-900 text-base">🐉 World Bossové (Open World Contests)</h3>
+                        <span class="text-[10px] font-bold bg-slate-200 text-slate-800 px-2 py-0.5 rounded">Cyklus 4h</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> Gigantičtí bossové objevující se v otevřeném světě v 4-hodinových cyklech (např. Watcher Kaira). Souboj se mění v masivní PvP bitvu celých guild o Last Hit a kontrolu nad lootem.
+                    </p>
+                    <p class="text-xs font-semibold text-slate-900 bg-slate-200 p-2 rounded">
+                        🎁 Odměny: Zlaté Draconic zbraně, Mythic Crafting Schematics, Vzácné esence.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-rose-200 bg-rose-50/30">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-rose-950 text-base">🏰 Corridory & Abyss Fortress Wars</h3>
+                        <span class="text-[10px] font-bold bg-rose-200 text-rose-900 px-2 py-0.5 rounded">Pevnostní Války</span>
+                    </div>
+                    <p class="text-xs text-slate-700 leading-relaxed mb-3">
+                        <strong>Význam:</strong> <strong>Abyss Corridors</strong> umožňují plněním vstupních cílů získat první Zlatou (Yellow) zbraň. <strong>Fortress Wars</strong> jsou pak největší serverové bitvy o nadvládu nad pevnostmi v Abyssu.
+                    </p>
+                    <p class="text-xs font-semibold text-rose-900 bg-rose-100 p-2 rounded">
+                        🎁 Odměny: Zlatá zbraň (z Corridorů), Frakční serverové buffy, Guild Castle příjmy.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-other" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">🛠️ Ostatní Kontent & Herní Systémy</h2>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                Přehled vedlejších herních systémů pro vývoj výbavy, těžení, přizpůsobení vzhledu a nastavování Arcana karet.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="p-5 rounded-xl border border-slate-200 bg-amber-50/30">
+                    <h3 class="font-bold text-slate-900 text-base mb-2">🔮 Substance Morph (Od Lv. 10)</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Transmutační systém využívající Odil suroviny. Umožňuje přeměňovat nízkostupňové úlomky na krystaly vyšších kvalit a vylepšovat bižuterii bez rizika zničení předmětu.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <h3 class="font-bold text-slate-900 text-base mb-2">⛏️ Crafting & Essence Extraction</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Těžba Odil uzlů v nebezpečných zónách. Výroba zahrnuje Alchemy (elixíry na HP/MP a Odyle Energy), Cooking (statistické jídelní buffy) a Armor/Weaponsmithing.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-indigo-50/30">
+                    <h3 class="font-bold text-slate-900 text-base mb-2">🔄 Enhancement & Transfer Crafting</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        <em>Enhancement</em> zvyšuje statistiky pomocí Enhancement Stones (bezpečná hranice zbraně +6). <em>Transfer Crafting</em> přenáší stupeň vylepšení ze staré zbraně na novou bez ztráty materiálů (vyžaduje opětné vložení Mana Stones).
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-sky-50/30">
+                    <h3 class="font-bold text-slate-900 text-base mb-2">🕊️ Wings & Glide Canceling</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Technika <strong>Glide Canceling</strong> (sekvence stisku 'V' -&gt; 'Shift' akcelerace -&gt; 'V' přerušení letu) zachovává maximální dopřednou rychlost těsně nad zemí pro rychlé úniky i pronásledování.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <h3 class="font-bold text-slate-900 text-base mb-2">🐾 Pets & Genus Insight</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Krmením petů skrze Pet Souls z Daily Dungeonů budujete jejich <strong>Genus Insight</strong> (čeledi Cogni, Fera, Natura, Varian). Tento systém pasivně navyšuje Block, Evasion a útočné vlastnosti celého účtu.
+                    </p>
+                </div>
+
+                <div class="p-5 rounded-xl border border-slate-200 bg-slate-50">
+                    <h3 class="font-bold text-slate-900 text-base mb-2">👗 Šatník (Closet & Skins)</h3>
+                    <p class="text-xs text-slate-600 leading-relaxed">
+                        Systém správy skinů zbraní, brnění a křídel. Aplikujte barviva (Dyes) a měňte vzhled výbavy nezávisle na jejích bojových statistikách.
+                    </p>
+                </div>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl p-6 bg-slate-50">
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-4">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">🃏 Interaktivní Prohlížeč Arcana Kartových Setů</h3>
+                        <p class="text-xs text-slate-600">
+                            Vyberte set Arcana karet (získávaných z Transcendence dungeonů) a prohlédněte si jeho 2-piece a 4-piece bonusy.
+                        </p>
+                    </div>
+                    <select id="arcana-select" onchange="renderArcanaDetails(this.value)" class="bg-white border border-slate-300 font-medium text-sm rounded-lg p-2.5 text-slate-800 focus:ring-2 focus:ring-amber-500">
+                        <option value="frenzy">Frenzy Set (PvE Burst DPS)</option>
+                        <option value="punishment">Punishment Set (PvE High HP Sustained)</option>
+                        <option value="guardian">Guardian Set (Tank & Healer Survival)</option>
+                        <option value="purity">Purity Set (Hybrid Defense & Crit)</option>
+                        <option value="indomitable">Indomitable Set (PvP Anti-Stun)</option>
+                    </select>
+                </div>
+
+                <div id="arcana-card-display" class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-stats" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+            <h2 class="text-2xl font-bold text-slate-900 mb-2">📊 Kompletní Databáze Statistik (Stats & Sub-stats)</h2>
+            <p class="text-slate-600 text-sm leading-relaxed mb-6">
+                Detailní rozpis všech primárních, božských i bojových atributů postavy v Aion 2.
+            </p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div class="p-5 rounded-xl border border-amber-200 bg-amber-50/30">
+                    <h3 class="text-base font-bold text-amber-950 mb-3">⭐ Primary Stats (Hlavní Atributy)</h3>
+                    <ul class="space-y-2 text-xs text-slate-700">
+                        <li class="p-2 bg-white rounded border border-amber-100"><strong class="text-amber-900">Might:</strong> Zvyšuje Attack (Sílu útoku).</li>
+                        <li class="p-2 bg-white rounded border border-amber-100"><strong class="text-amber-900">Dexterity:</strong> Zvyšuje Evasion, Block a Critical Hit Resist.</li>
+                        <li class="p-2 bg-white rounded border border-amber-100"><strong class="text-amber-900">Precision:</strong> Zvyšuje Accuracy (Přesnost) a Critical Hit Rate.</li>
+                        <li class="p-2 bg-white rounded border border-amber-100"><strong class="text-amber-900">Willpower:</strong> Zvyšuje Status Effect Resist (Odolnost vůči efektům).</li>
+                        <li class="p-2 bg-white rounded border border-amber-100"><strong class="text-amber-900">Intelligence:</strong> Zvyšuje Status Effect Chance (Šanci na aplikaci efektu).</li>
+                        <li class="p-2 bg-white rounded border border-amber-100"><strong class="text-amber-900">Constitution:</strong> Zvyšuje maximální hodnotu HP (Zdraví).</li>
+                    </ul>
+                </div>
+
+                <div class="p-5 rounded-xl border border-indigo-200 bg-indigo-50/30">
+                    <h3 class="text-base font-bold text-indigo-950 mb-3">🏛️ Deity Stats (Božské Atributy)</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-slate-700">
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Destruction (Zikel):</strong> Attack & Perfect Resist</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Death (Triniel):</strong> Crit Hit Rate & Regen Penetration</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Wisdom (Lumiel):</strong> Double Chance & MP Cost Reduction</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Destiny (Marchutan):</strong> Max MP & Endurance Chance</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Space (Israphel):</strong> Move Speed & Block Chance</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Time (Siel):</strong> Combat Speed & Double Resist</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Illusion (Kaisinel):</strong> Cooldown Red. & Endurance Penetration</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Freedom (Vaizel):</strong> Accuracy & Evasion</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Life (Yustiel):</strong> Max HP & Regen Activation Chance</div>
+                        <div class="p-2 bg-white rounded border border-indigo-100"><strong>Justice (Nezekan):</strong> Defense & Perfect Chance</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <h3 class="text-lg font-bold text-slate-900">⚔️ Combat & Hit Detection Sub-stats</h3>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 border-b border-slate-200 text-slate-800">
+                                <th class="p-2.5 font-bold">Stat Name</th>
+                                <th class="p-2.5 font-semibold">Popis účinku</th>
+                                <th class="p-2.5 font-bold">Stat Name</th>
+                                <th class="p-2.5 font-semibold">Popis účinku</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 text-slate-600">
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Penetration</td>
+                                <td class="p-2.5">Ignoruje obranu cíle (Defense neklesne pod 0).</td>
+                                <td class="p-2.5 font-bold text-slate-900">Power Shard Damage</td>
+                                <td class="p-2.5">Zvyšuje poškození při použití Power Shardů.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Critical Attack</td>
+                                <td class="p-2.5">Zvyšuje damage při kritickém zásahu.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Critical Damage Defense</td>
+                                <td class="p-2.5">Snižuje obdržený kritický damage.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Back Attack</td>
+                                <td class="p-2.5">Zvyšuje damage zezadu a ignoruje cílův Block.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Back Defense</td>
+                                <td class="p-2.5">Snižuje obdržený damage při útoku zezadu.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Front Attack</td>
+                                <td class="p-2.5">Zvyšuje damage při útoku zepředu.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Front Defense</td>
+                                <td class="p-2.5">Snižuje obdržený damage zepředu.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Damage Boost</td>
+                                <td class="p-2.5">Celkově navyšuje udělovaný damage.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Damage Tolerance</td>
+                                <td class="p-2.5">Oslabuje jakýkoliv obdržený damage.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Weapon Damage Boost</td>
+                                <td class="p-2.5">Zvyšuje základní Weapon Damage zbraně.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Weapon Damage Tolerance</td>
+                                <td class="p-2.5">Snižuje účinek soupeřovy zbraně.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Multi-hit Chance</td>
+                                <td class="p-2.5">Šance na přidání vícečetných zásahů.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Multi-hit Resist</td>
+                                <td class="p-2.5">Snižuje šanci cíle na Multi-hit.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Block Penetration</td>
+                                <td class="p-2.5">Ignoruje šanci cíle na vyblokování útoku.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Block</td>
+                                <td class="p-2.5">Zvyšuje šanci na Parry a Block štítem.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Endurance Penetration</td>
+                                <td class="p-2.5">Ignoruje cílův Endurance activation.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Endurance</td>
+                                <td class="p-2.5">Zvyšuje šanci na aktivaci Endurance.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-2.5 font-bold text-slate-900">Double Chance</td>
+                                <td class="p-2.5">Zvyšuje šanci na dvojitý úder.</td>
+                                <td class="p-2.5 font-bold text-slate-900">Double Resist</td>
+                                <td class="p-2.5">Snižuje šanci soupeře na Double Chance.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="border border-slate-200 rounded-xl p-5 bg-slate-50/50 mt-6">
+                <h3 class="text-base font-bold text-slate-900 mb-2">⏱️ Combat Speed & Frame Breakpointy</h3>
+                <p class="text-xs text-slate-600 leading-relaxed mb-4">
+                    V Aion 2 klesá doba trvání animace útoku skokově v závislosti na obnovovacím kmitočtu. Hodnoty Combat Speed % umístěné mezi breakpointy nepřinášejí reálné zrychlení animace uderu.
+                </p>
+                <div class="chart-container">
+                    <canvas id="speedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="section-map" class="tab-content hidden space-y-6">
+        <div class="bg-white rounded-xl p-6 border border-slate-200 shadow-sm">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">🗺️ Interaktivní Mapa: Zóna World_L_A</h2>
+                    <p class="text-slate-600 text-sm">
+                        Plně integrovaná mapa pro vyhledávání těžařských uzlů (Odil nodes), skrytých truhlic (Hidden Cubes) a dungeonů v zóně World_L_A.
+                    </p>
+                </div>
+                <a href="https://aion2t.com/map?zone=World_L_A" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-4 py-2.5 rounded-lg transition-colors shadow-sm">
+                    🌐 Otevřít Plnou Mapu v Novém Okně ↗
+                </a>
+            </div>
+
+            <div class="w-full h-[750px] bg-slate-900 rounded-xl overflow-hidden border border-slate-700 shadow-inner relative">
+                <iframe src="https://aion2t.com/map?zone=World_L_A" class="w-full h-full border-0" title="Aion 2 World_L_A Interactive Map" loading="lazy"></iframe>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<footer class="bg-slate-900 text-slate-400 text-xs border-t border-slate-800 mt-12 py-6">
+    <div class="max-w-7xl mx-auto px-4 text-center space-y-2">
+        <p class="font-medium text-slate-300">
+            AION 2 STRATEGICKÁ ENCYKLOPEDIE & VELITELSKÁ PŘÍRUČKA &copy; 2026
+        </p>
+        <p class="text-slate-500 max-w-2xl mx-auto">
+            Vytvořeno s důrazem na přesnost herních mechanik a oficiální in-game slang pro českou Aion 2 komunitu. Synchronizováno s Questlog.gg rozvrhem.
+        </p>
+    </div>
+</footer>
+
+<script>
+    const arcanaData = {
+        frenzy: {
+            title: "Frenzy Set (PvE Burst DPS)",
+            desc: "Dominantní set pro dungeony zaměřený na maximalizaci okamžitého poškození během fáze zranitelnosti bosse.",
+            piece2: "+50 PvE Attack (Plošné navýšení útočné síly v dungeonu)",
+            piece4: "+5% Boss Damage Amplification (Procentuální násobič finálního poškození bossovi)",
+            usage: "Doporučeno pro: DPS třídy (Assassin, Gladiator, Sorcerer, Ranger)."
+        },
+        punishment: {
+            title: "Punishment Set (PvE Sustained High HP)",
+            desc: "Ultimátní set pro dlouhé souboje, kde je healery udržováno HP postavy nad hranicí 70 %.",
+            piece2: "+5% Boss Damage Resistance (Snížení poškození od bosse)",
+            piece4: "+60 PvE Attack & +10% Damage Amp při uchování HP ≥ 70%",
+            usage: "Doporučeno pro: Rangery a magické DPS se stabilní vzdáleností od bosse."
+        },
+        guardian: {
+            title: "Guardian Set (Tank & Healer Survival)",
+            desc: "Defenzivní set vytvářející záchrannou síť před usmrcením během nebezpečných mechanik.",
+            piece2: "+5% HP Regeneration (Pasivní obnovování zdraví)",
+            piece4: "Při poklesu HP pod 30 % okamžitě aktivuje štít absorbující 10 000 poškození (Cooldown: 2 minuty).",
+            usage: "Doporučeno pro: Templar, Cleric, Brawler."
+        },
+        purity: {
+            title: "Purity Set (Hybrid Defense & Crit)",
+            desc: "Specializovaný set pro vyvážení magické odolnosti a kritických úderů.",
+            piece2: "+500 PvE Defense",
+            piece4: "+5% Critical Damage Amplification",
+            usage: "Doporučeno pro: Sorcerer / Chanter v náročných instancích."
+        },
+        indomitable: {
+            title: "Indomitable Set (PvP Anti-Stun)",
+            desc: "Neocenitelný nástroj pro arény 1vs1 a 5vs5 zabraňující stunlocking řetězcům.",
+            piece2: "+5% Weapon Damage Resistance",
+            piece4: "Dočasná imunita proti abnormal statusům po obdržení prvního CC efektu.",
+            usage: "Doporučeno pro: Všechny třídy v PvP Battlefieldech."
+        }
+    };
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('tab-active'));
+
+        const targetSection = document.getElementById(`section-${tabId}`);
+        const targetBtn = document.getElementById(`tab-btn-${tabId}`);
+
+        if (targetSection) targetSection.classList.remove('hidden');
+        if (targetBtn) targetBtn.classList.add('tab-active');
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        if (tabId === 'stats') {
+            initSpeedChart();
+        }
+    }
+
+    function renderArcanaDetails(key) {
+        const data = arcanaData[key];
+        const container = document.getElementById('arcana-card-display');
+        if (!data || !container) return;
+
+        container.innerHTML = `
+            <div class="border-b border-slate-200 pb-3">
+                <h4 class="text-base font-bold text-slate-900">${data.title}</h4>
+                <p class="text-xs text-slate-600 mt-1">${data.desc}</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+                <div class="bg-amber-50/80 p-3 rounded-lg border border-amber-200">
+                    <span class="font-bold text-amber-900 block mb-1">🧩 2-Piece Bonus:</span>
+                    <span class="text-slate-800">${data.piece2}</span>
+                </div>
+                <div class="bg-indigo-50/80 p-3 rounded-lg border border-indigo-200">
+                    <span class="font-bold text-indigo-900 block mb-1">🔥 4-Piece Bonus:</span>
+                    <span class="text-slate-800">${data.piece4}</span>
+                </div>
+            </div>
+            <div class="text-xs text-slate-500 font-medium italic pt-1">
+                ${data.usage}
+            </div>
+        `;
+    }
+
+    function updateTimers() {
+        const now = new Date();
+        const nowMs = now.getTime();
+
+        // 1. Daily Reset: 18:00 UTC
+        let dailyReset = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 18, 0, 0));
+        if (now >= dailyReset) {
+            dailyReset.setUTCDate(dailyReset.getUTCDate() + 1);
+        }
+        const diffDaily = dailyReset - now;
+        const dailyH = Math.floor(diffDaily / (1000 * 60 * 60));
+        const dailyM = Math.floor((diffDaily % (1000 * 60 * 60)) / (1000 * 60));
+        const dailyS = Math.floor((diffDaily % (1000 * 60)) / 1000);
+        document.getElementById('timer-daily').innerText = `${dailyH}h ${dailyM}m ${dailyS}s`;
+
+        // 2. Weekly Reset: Středa 18:00 UTC
+        let weeklyReset = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 18, 0, 0));
+        let dayOfWeek = now.getUTCDay();
+        let daysUntilWed = (3 - dayOfWeek + 7) % 7;
+        if (daysUntilWed === 0 && now >= weeklyReset) {
+            daysUntilWed = 7;
+        }
+        weeklyReset.setUTCDate(weeklyReset.getUTCDate() + daysUntilWed);
+        const diffWeekly = weeklyReset - now;
+        const weeklyD = Math.floor(diffWeekly / (1000 * 60 * 60 * 24));
+        const weeklyH = Math.floor((diffWeekly % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const weeklyM = Math.floor((diffWeekly % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById('timer-weekly').innerText = `${weeklyD}d ${weeklyH}h ${weeklyM}m`;
+
+        // 3. Shugo Fest: Každé 2 hodiny (Liché hodiny UTC: 01:00, 03:00, 05:00, 07:00...)
+        const shugoInterval = 2 * 3600 * 1000;
+        const shugoBase = Date.UTC(2026, 0, 1, 1, 0, 0);
+        const shugoNext = shugoBase + Math.ceil((nowMs - shugoBase) / shugoInterval) * shugoInterval;
+        const diffShugo = shugoNext - nowMs;
+        const shugoH = Math.floor(diffShugo / (1000 * 60 * 60));
+        const shugoM = Math.floor((diffShugo % (1000 * 60 * 60)) / (1000 * 60));
+        const shugoS = Math.floor((diffShugo % (1000 * 60)) / 1000);
+        document.getElementById('timer-shugo').innerText = shugoH > 0 ? `${shugoH}h ${shugoM}m` : `${shugoM}m ${shugoS}s`;
+
+        // 4. Watcher Kaira: Každé 4 hodiny (02:00, 06:00, 10:00, 14:00, 18:00, 22:00 UTC)
+        const kairaInterval = 4 * 3600 * 1000;
+        const kairaBase = Date.UTC(2026, 0, 1, 2, 0, 0);
+        const kairaNext = kairaBase + Math.ceil((nowMs - kairaBase) / kairaInterval) * kairaInterval;
+        const diffKaira = kairaNext - nowMs;
+        const kairaH = Math.floor(diffKaira / (1000 * 60 * 60));
+        const kairaM = Math.floor((diffKaira % (1000 * 60 * 60)) / (1000 * 60));
+        const kairaS = Math.floor((diffKaira % (1000 * 60)) / 1000);
+        document.getElementById('timer-kaira').innerText = kairaH > 0 ? `${kairaH}h ${kairaM}m` : `${kairaM}m ${kairaS}s`;
+
+        // 5. Rift Event: Každé 4 hodiny (03:00, 07:00, 11:00, 15:00, 19:00, 23:00 UTC)
+        const riftInterval = 4 * 3600 * 1000;
+        const riftBase = Date.UTC(2026, 0, 1, 3, 0, 0);
+        const riftNext = riftBase + Math.ceil((nowMs - riftBase) / riftInterval) * riftInterval;
+        const diffRift = riftNext - nowMs;
+        const riftH = Math.floor(diffRift / (1000 * 60 * 60));
+        const riftM = Math.floor((diffRift % (1000 * 60 * 60)) / (1000 * 60));
+        const riftS = Math.floor((diffRift % (1000 * 60)) / 1000);
+        document.getElementById('timer-rift').innerText = riftH > 0 ? `${riftH}h ${riftM}m` : `${riftM}m ${riftS}s`;
+    }
+
+    let speedChartInstance = null;
+
+    function initSpeedChart() {
+        const ctx = document.getElementById('speedChart');
+        if (!ctx) return;
+
+        if (speedChartInstance) {
+            speedChartInstance.destroy();
+        }
+
+        speedChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['0%', '5%', '10%', '15% (Breakpoint 1)', '20%', '25% (Breakpoint 2)', '30%'],
+                datasets: [{
+                    label: 'Snímky na Útok (Animation Frames)',
+                    data: [30, 30, 30, 29, 29, 28, 28],
+                    borderColor: '#d97706',
+                    backgroundColor: 'rgba(217, 119, 6, 0.15)',
+                    borderWidth: 3,
+                    fill: true,
+                    stepped: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        title: { display: true, text: 'Počet Snímků (Frames)', font: { size: 10 } },
+                        min: 27,
+                        max: 31,
+                        ticks: { stepSize: 1 }
+                    },
+                    x: {
+                        title: { display: true, text: 'Combat Speed %', font: { size: 10 } }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return `Počet snímků: ${context.raw} frames (Skutečné zrychlení úderu)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+        renderArcanaDetails('frenzy');
+        updateTimers();
+        setInterval(updateTimers, 1000);
+    });
+</script>
+</body>
+</html>
